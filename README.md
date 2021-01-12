@@ -1,4 +1,4 @@
-# draw-learn
+# vue-node-diagram
 
 ## Project setup
 ```
