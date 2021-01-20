@@ -169,12 +169,13 @@ export default {
                 let linkOutput;
                 let linkInput;
                 for (let i = 0; i < this.links.length; ++i) {
-                    if (this.links[i].nodeOutput === this.draggedItem) {
+                    if (!linkOutput && this.links[i].nodeOutput === this.draggedItem) {
                         linkOutput = this.links[i];
-                        break;
                     }
-                    if (this.links[i].nodeInput === this.draggedItem) {
+                    if (!linkInput && this.links[i].nodeInput === this.draggedItem) {
                         linkInput = this.links[i];
+                    }
+                    if (linkOutput && linkInput) {
                         break;
                     }
                 }
@@ -186,7 +187,8 @@ export default {
 
                 if (linkOutput) {
                     linkOutput.component.moveStart(x, y);
-                } else if (linkInput) {
+                } 
+                if (linkInput) {
                     linkInput.component.moveEnd(x, y);
                 }
 
@@ -217,7 +219,10 @@ export default {
         onZoom(zoom) {
             console.log(zoom);
             this.zoom = zoom;
-        }
+        },
+        // addNode(text, x, y) {
+
+        // }
     }
 }
 </script>
