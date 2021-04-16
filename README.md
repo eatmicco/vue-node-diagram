@@ -1,24 +1,3 @@
-# vue-node-diagram
+# v-node-diagram
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+![v-node-diagram screenshot](https://github.com/eatmicco/vue-node-diagram/blob/feature/create-library-package/img/Screen%20Shot%202021-04-16%20at%2011.05.14.png?raw=true)
