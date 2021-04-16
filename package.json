@@ -1,10 +1,9 @@
 {
-  "name": "draw-learn",
+  "name": "v-node-diagram",
   "version": "0.1.0",
+  "main": "src/index.js",
   "private": true,
-  "scripts": {
-    "build": "webpack --config config/webpack.config.js"
-  },
+  "scripts": {},
   "dependencies": {
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
@@ -14,6 +13,7 @@
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.11",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
@@ -26,10 +26,7 @@
     "node-sass": "^5.0.0",
     "sass-loader": "^11.0.1",
     "vue-loader": "^15.9.6",
-    "vue-template-compiler": "^2.6.12",
-    "webpack": "^5.30.0",
-    "webpack-cli": "^4.6.0",
-    "webpack-dev-server": "^3.11.2"
+    "vue-template-compiler": "^2.6.12"
   },
   "eslintConfig": {
     "root": true,
