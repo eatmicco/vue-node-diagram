@@ -1,12 +1,4 @@
 <template>
-    <!-- <SvgPanZoom
-            style="width: 500px; height: 500px; border:1px solid black;"
-            :zoomEnabled="true"
-            :controlIconsEnabled="true"
-            :fit="false"
-            :panEnabled="panEnabled" 
-            :beforePan="beforePan"
-            :onZoom="onZoom"> -->
     <div style="width: 500px; height: 500px; border:1px solid black;">
         <svg
             width="500"
@@ -19,13 +11,12 @@
             <node-link v-for="link in links" :key="'link_' + link.id" :ref="'link_' + link.id" :startX="link.startX" :startY="link.startY" :endX="link.endX" :endY="link.endY" />
         </svg>
     </div>
-    <!-- </SvgPanZoom> -->
 </template>
 
 <script>
 // import SvgPanZoom from 'vue-svg-pan-zoom';
-import Node from './Node';
-import Link from './Link';
+import Node from './Node.vue';
+import Link from './Link.vue';
 
 function removeItemFromArray(arr, item) {
     for (var i = 0; i < arr.length; ++i) {

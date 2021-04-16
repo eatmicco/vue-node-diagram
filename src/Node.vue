@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import Port from './Port';
+import Port from './Port.vue';
 
 export default {
     name: 'node',
