@@ -12,7 +12,7 @@ const plugin = {
 
 let GlobalVue = null;
 if (typeof window != "undefined") {
-    GloblVue = window.Vue;
+    GlobalVue = window.Vue;
 } else if (typeof global != "undefined") {
     GlobalVue = global.Vue;
 }
