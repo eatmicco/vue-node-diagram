@@ -224,6 +224,9 @@ export default {
                 component: undefined
             };
             this.nodes.push(newNode);
+        },
+        clearNodes() {
+            this.nodes.splice(0, this.nodes.length);
         }
     }
 }

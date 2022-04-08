@@ -19,6 +19,7 @@ export default {
   },
   mounted() {
     console.log("App mounted!");
+    this.$refs.diagram.clearNodes();
     this.$refs.diagram.addNode("node-3", 35, 35);
   }
 }
