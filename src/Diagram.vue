@@ -211,9 +211,20 @@ export default {
             console.log(zoom);
             this.zoom = zoom;
         },
-        // addNode(text, x, y) {
-
-        // }
+        addNode(text, x, y) {
+            var newNode = {
+                id: `${this.links.length}`,
+                text: text,
+                x: x,
+                y: y,
+                width: 100,
+                height: 20,
+                input: '',
+                output: '',
+                component: undefined
+            };
+            this.nodes.push(newNode);
+        }
     }
 }
 </script>
