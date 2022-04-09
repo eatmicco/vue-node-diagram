@@ -7,8 +7,8 @@
             @mousedown="mouseDown"
             @mousemove="mouseMove"
             @mouseup="mouseUp">
-            <node v-for="node in nodes" :key="'node_' + node.id" :ref="'node_' + node.id" :x="node.x" :y="node.y" :width="node.width" :height="node.height" :text="node.text" @onStartDrag="onStartDrag" @onEndDrag="onEndDrag" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
-            <node-link v-for="link in links" :key="'link_' + link.id" :ref="'link_' + link.id" :startX="link.startX" :startY="link.startY" :endX="link.endX" :endY="link.endY" />
+            <node v-for="node in nodes" :key="node.id" :ref="node.id" :x="node.x" :y="node.y" :width="node.width" :height="node.height" :text="node.text" @onStartDrag="onStartDrag" @onEndDrag="onEndDrag" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
+            <node-link v-for="link in links" :key="link.id" :ref="link.id" :startX="link.startX" :startY="link.startY" :endX="link.endX" :endY="link.endY" />
         </svg>
     </div>
 </template>
@@ -17,6 +17,7 @@
 // import SvgPanZoom from 'vue-svg-pan-zoom';
 import Node from './Node.vue';
 import Link from './Link.vue';
+import { v4 as uuidv4 } from 'uuid';
 
 function removeItemFromArray(arr, item) {
     for (var i = 0; i < arr.length; ++i) {
@@ -80,11 +81,11 @@ export default {
     },
     updated() {
         this.nodes.forEach((node) => {
-            node.component = this.$refs['node_' + node.id][0];
+            node.component = this.$refs[node.id][0];
         });
 
         this.links.forEach((link) => {
-            link.component = this.$refs['link_' + link.id][0];
+            link.component = this.$refs[link.id][0];
         });
     },
     components: {
@@ -119,7 +120,7 @@ export default {
             this.panEnabled = false;
             this.startLink = true;
             this.selectedLink = {
-                id: `${this.links.length}`,
+                id: `${uuidv4()}`,
                 startX: node.pos.x + port.pos.x,
                 startY: node.pos.y + port.pos.y,
                 endX: node.pos.x + port.pos.x,
@@ -173,7 +174,6 @@ export default {
 
                 let x = (pos.x - this.lastMouseX) / this.zoom;
                 let y = (pos.y - this.lastMouseY) / this.zoom;
-                console.log(`mouseMove ${x}, ${y}`);
                 this.draggedItem.move(x, y);
 
                 if (linkOutput) {
@@ -213,7 +213,7 @@ export default {
         },
         addNode(text, x, y) {
             var newNode = {
-                id: `${this.links.length}`,
+                id: `${uuidv4()}`,
                 text: text,
                 x: x,
                 y: y,
@@ -223,10 +223,16 @@ export default {
                 output: '',
                 component: undefined
             };
+            console.log('nodes: ' + this.nodes.length);
             this.nodes.push(newNode);
         },
         clearNodes() {
-            this.nodes.splice(0, this.nodes.length);
+            while (this.nodes.length > 0) {
+                this.nodes.pop();
+            }
+            while (this.links.length > 0) {
+                this.links.pop();
+            }
         }
     }
 }
