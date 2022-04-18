@@ -7,7 +7,7 @@
             @mousedown="mouseDown"
             @mousemove="mouseMove"
             @mouseup="mouseUp">
-            <node v-for="node in nodes" :key="node.id" :ref="node.id" :x="node.x" :y="node.y" :width="node.width" :height="node.height" :text="node.text" @onStartDrag="onStartDrag" @onEndDrag="onEndDrag" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
+            <node v-for="node in nodes" :key="node.id" :ref="node.id" :x="node.x" :y="node.y" :subs="node.subs" @onStartDrag="onStartDrag" @onEndDrag="onEndDrag" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
             <node-link v-for="link in links" :key="link.id" :ref="link.id" :startX="link.startX" :startY="link.startY" :endX="link.endX" :endY="link.endY" />
         </svg>
     </div>
@@ -45,24 +45,22 @@ export default {
             nodes: [
                 {
                     id: '0',
-                    text: 'node 1',
                     x: 0,
                     y: 0,
-                    width: 100,
-                    height: 20,
-                    input: '',
-                    output: '',
+                    subs: [
+                        'test A',
+                        'test B'
+                    ],
                     component: undefined
                 },
                 {
                     id: '1',
-                    text: 'node 2',
                     x: 200,
                     y: 100,
-                    width: 100,
-                    height: 20,
-                    input: '',
-                    output: '',
+                    subs: [
+                        'test C',
+                        'test D'
+                    ],
                     component: undefined
                 }
             ],
@@ -71,7 +69,8 @@ export default {
             panEnabled: true,
             startDrag: false,
             startLink: false,
-            selectedItem: undefined,
+            selectedNode: undefined,
+            selectedSubNode: undefined,
             draggedItem: undefined,
             selectedLink: undefined,
             lastMouseX: 0,
@@ -94,17 +93,21 @@ export default {
         'node-link': Link
     },
     methods: {
-        onStartDrag(item, x, y) {
+        onStartDrag(node, subnode, x, y) {
             console.log("onStartDrag");
             this.panEnabled = false;
             
-            if (!this.startDrag && this.selectedItem) {
-                this.selectedItem.unselect();
-                this.selectedItem = undefined;
+            if (!this.startDrag && this.selectedNode) {
+                this.selectedNode.unselect();
+                this.selectedNode = undefined;
+                this.selectedSubNode = undefined;
             }
 
-            if (item) {
-                this.selectedItem = this.draggedItem = item;
+            if (node) {
+                this.selectedNode = this.draggedItem = node;
+            }
+            if (subnode) {
+                this.selectedSubNode = subnode;
             }
             console.log(`${x}, ${y} ${this.panEnabled}`);
             this.startDrag = true;
@@ -115,72 +118,74 @@ export default {
             this.startDrag = false;
             this.draggedItem = undefined;
         },
-        onStartLink(node, port) {
+        onStartLink(node, subnode, port) {
             console.log(port);
             this.panEnabled = false;
             this.startLink = true;
+            console.log("subnode.pos: " + subnode.pos.x + ", " + subnode.pos.y);
             this.selectedLink = {
                 id: `${uuidv4()}`,
-                startX: node.pos.x + port.pos.x,
-                startY: node.pos.y + port.pos.y,
-                endX: node.pos.x + port.pos.x,
-                endY: node.pos.y + port.pos.y,
-                nodeOutput: node
+                startX: node.pos.x + subnode.pos.x + port.pos.x,
+                startY: node.pos.y + subnode.pos.y + port.pos.y,
+                endX: node.pos.x + subnode.pos.x + port.pos.x,
+                endY: node.pos.y + subnode.pos.y + port.pos.y,
+                nodeOutput: node,
+                subNodeOutput: subnode
             };
             this.links.push(this.selectedLink);
         },
-        onEndLink(node, port) {
+        onEndLink(node, subnode, port) {
             if (this.startLink && this.selectedLink) {
                 this.selectedLink.nodeInput = node;
+                this.selectedLink.subNodeInput = subnode;
                 console.log(`Before ${this.selectedLink.endX}`);
                 if (this.selectedLink.component) {
-                    this.selectedLink.component.setEnd(node.pos.x + port.pos.x, node.pos.y + port.pos.y);
+                    this.selectedLink.component.setEnd(node.pos.x + subnode.pos.x + port.pos.x, node.pos.y + subnode.pos.y + port.pos.y);
                 }
                 this.startLink = false;
             }
         },
         beforePan() {
             if (this.panEnabled) {
-                if (this.selectedItem) {
-                    this.selectedItem.unselect();
-                    this.selectedItem = undefined;
+                if (this.selectedNode) {
+                    this.selectedNode.unselect();
+                    this.selectedNode = undefined;
                 }
+                this.selectedSubNode = undefined;
             }
             return this.panEnabled;
         },
         mouseDown(pos) {
             console.log(`Mouse Down on ${pos.x}, ${pos.y}`);
-            if (!this.startDrag && this.selectedItem) {
-                this.selectedItem.unselect();
-                this.selectedItem = undefined;
+            if (!this.startDrag && this.selectedNode) {
+                this.selectedNode.unselect();
+                this.selectedNode = undefined;
+                this.selectedSubNode = undefined;
             }
         },
         mouseMove(pos) {
             if (this.startDrag && this.draggedItem) {
 
-                let linkOutput;
-                let linkInput;
-                for (let i = 0; i < this.links.length; ++i) {
-                    if (!linkOutput && this.links[i].nodeOutput === this.draggedItem) {
-                        linkOutput = this.links[i];
-                    }
-                    if (!linkInput && this.links[i].nodeInput === this.draggedItem) {
-                        linkInput = this.links[i];
-                    }
-                    if (linkOutput && linkInput) {
-                        break;
-                    }
-                }
-
                 let x = (pos.x - this.lastMouseX) / this.zoom;
                 let y = (pos.y - this.lastMouseY) / this.zoom;
                 this.draggedItem.move(x, y);
 
-                if (linkOutput) {
-                    linkOutput.component.moveStart(x, y);
-                } 
-                if (linkInput) {
-                    linkInput.component.moveEnd(x, y);
+                for (let i = 0; i < this.links.length; ++i) {
+                    let linkOutput;
+                    let linkInput;
+                    if (!linkOutput && this.links[i].nodeOutput === this.selectedNode) {
+                        linkOutput = this.links[i];
+                    }
+                    if (!linkInput && this.links[i].nodeInput === this.selectedNode) {
+                        linkInput = this.links[i];
+                    }
+
+                    if (linkOutput) {
+                        linkOutput.component.moveStart(x, y);
+                    } 
+                    if (linkInput) {
+                        linkInput.component.moveEnd(x, y);
+                    }
                 }
 
             } else if (this.startLink && this.selectedLink) {
@@ -211,16 +216,12 @@ export default {
             console.log(zoom);
             this.zoom = zoom;
         },
-        addNode(text, x, y) {
+        addNode(x, y, subs) {
             var newNode = {
                 id: `${uuidv4()}`,
-                text: text,
                 x: x,
                 y: y,
-                width: 100,
-                height: 20,
-                input: '',
-                output: '',
+                subs: subs,
                 component: undefined
             };
             console.log('nodes: ' + this.nodes.length);

@@ -1,46 +1,18 @@
 <template>
-    <svg
-        :x="pos.x" :y="pos.y">
-        <port 
-            :x="0" :y="portY"
-            :size="portSize" @onMouseUp="onEndLink" />
-        <rect 
-            stroke="#555555"
-            :fill="!selected ? '#FFFFFF' : '#AAAAAA'"
-            stroke-width="1"
-            :x="portSize" y="0"
-            rx="3" ry="3"
-            :width="width" :height="height"
-            @mousedown="mouseDown"
-            @mouseup="mouseUp" />
-        <port 
-            :x="outputX" :y="portY"
-            :size="portSize" @onMouseDown="onStartLink"/>
-        <text
-            xml:space="preserve"
-            style="font-style:normal;font-weight:normal;line-height:1.25;font-family:sans-serif;fill:#555555;fill-opacity:1;stroke:none;stroke-width:0.264583"
-            :style="{fontSize:fontSize}"
-            :x="textPosX"
-            :y="textPosY"
-            id="text30">{{ text }}</text>
-
+    <svg 
+        :x="pos.x" 
+        :y="pos.y">
+        <sub-node v-for="subnode in subnodes" :key="subnode.id" :ref="subnode.id" :x="subnode.x" :y="subnode.y" :width="subnode.width" :height="subnode.height" :text="subnode.text" @onMouseDown="onMouseDown" @onMouseUp="onMouseUp" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
     </svg>
 </template>
 
 <script>
-import Port from './Port.vue';
+import SubNode from './SubNode.vue';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
     name: 'node',
     props: {
-        width: {
-            type: Number,
-            default: 72
-        },
-        height: {
-            type: Number,
-            default: 108
-        },
         x: {
             type: Number,
             default: 0
@@ -49,9 +21,11 @@ export default {
             type: Number,
             default: 0
         },
-        text: {
-            type: String,
-            default: "Name"
+        subs: {
+            type: Array,
+            default: function () {
+                return []
+            }
         }
     },
     data() {
@@ -60,68 +34,91 @@ export default {
                 x: 0,
                 y: 0
             },
-            portSize: 4,
-            fontSize: 10,
+            subnodes: [],
+            yspan: 20,
             selected: false
         };
+    },
+    updated() {
+        this.subnodes.forEach((subnode) => {
+            subnode.component = this.$refs[subnode.id][0];
+        });
     },
     mounted() {
         console.log("Node mounted");
         this.pos.x = this.x;
         this.pos.y = this.y;
+
+        this.clearSubNodes();
+        for (let i = 0; i < this.subs.length; ++i) {
+            this.addSubNode(this.subs[i], this.pos.x, this.pos.y);
+        }
         console.log(this.pos);
     },
-    computed: {
-        portY() {
-            return (this.height/2) - (this.portSize/2);
-        },
-        outputX() {
-            return this.width + this.portSize;
-        },
-        textPosX() {
-            return this.portSize * 2;
-        },
-        textPosY() {
-            return this.height - (this.fontSize / 2);
-        }
-    },
     methods: {
-        mouseDown(pos) {
+        onMouseDown(subnode, pos) {
             this.selected = true;
             this.$emit(
                 "onStartDrag",
                 this,
+                subnode,
                 pos.x - this.pos.x,
                 pos.y - this.pos.y
             )
         },
 
-        mouseUp() {
+        onMouseUp() {
+            console.log("Node mouseDown");
             this.$emit("onEndDrag");
         },
 
         unselect() {
             this.selected = false;
+            for (let i = 0; i < this.subnodes.length; ++i) {
+                if (this.subnodes[i].component != undefined) {
+                    this.subnodes[i].component.unselect();
+                }
+            }
         },
 
-        onStartLink(port) {
+        onStartLink(subnode, port) {
             console.log("Node onStartLink");
-            this.$emit("onStartLink", this, port);
+            this.$emit("onStartLink", this, subnode, port);
         },
 
-        onEndLink(port) {
+        onEndLink(subnode, port) {
             console.log("Node onEndLink");
-            this.$emit("onEndLink", this, port);
+            this.$emit("onEndLink", this, subnode, port);
         },
 
         move(x, y) {
-            console.log(this.pos);
+            console.log("node move " + this.pos.x + ", " + this.pos.y);
             this.pos.x += x;
             this.pos.y += y;
+        },
+
+        addSubNode(text, parentX, parentY) {
+            var subnode = {
+                id: `${uuidv4()}`,
+                x: parentX,
+                y: parentY + (this.subnodes.length * this.yspan),
+                width: 100,
+                height: 20,
+                text: text
+            };
+
+            console.log("addsubnode: " + subnode.text + "; y:" + subnode.y);
+            this.subnodes.push(subnode);
+        },
+
+        clearSubNodes() {
+            while (this.subnodes.length > 0) {
+                this.subnodes.pop();
+            }
         }
     },
     components: {
-        Port
+        'sub-node': SubNode
     }
 }
 </script>
