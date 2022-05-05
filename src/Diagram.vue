@@ -1,5 +1,5 @@
 <template>
-    <SvgPanZoom style="width: 5000px; height: 5000px; border:1px solid black;"
+    <SvgPanZoom style="width: 500px; height: 500px; border:0px solid black;"
         :fit="false"
         @svgpanzoom="registerSvgPanZoom">
         <svg
