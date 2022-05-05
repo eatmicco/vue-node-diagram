@@ -1,5 +1,7 @@
 <template>
-    <div style="width: 500px; height: 500px; border:1px solid black;">
+    <SvgPanZoom style="width: 5000px; height: 5000px; border:1px solid black;"
+        :fit="false"
+        @svgpanzoom="registerSvgPanZoom">
         <svg
             width="500"
             height="500"
@@ -7,14 +9,16 @@
             @mousedown="mouseDown"
             @mousemove="mouseMove"
             @mouseup="mouseUp">
-            <node v-for="node in nodes" :key="node.id" :ref="node.id" :x="node.x" :y="node.y" :subs="node.subs" @onStartDrag="onStartDrag" @onEndDrag="onEndDrag" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
-            <node-link v-for="link in links" :key="link.id" :ref="link.id" :startX="link.startX" :startY="link.startY" :endX="link.endX" :endY="link.endY" />
+            <g>
+                <node-link v-for="link in links" :key="link.id" :ref="link.id" :startX="link.startX" :startY="link.startY" :endX="link.endX" :endY="link.endY" />
+                <node v-for="node in nodes" :key="node.id" :ref="node.id" :x="node.x" :y="node.y" :subs="node.subs" @onStartDrag="onStartDrag" @onEndDrag="onEndDrag" @onStartLink="onStartLink" @onEndLink="onEndLink"/>
+            </g>
         </svg>
-    </div>
+    </SvgPanZoom>
 </template>
 
 <script>
-// import SvgPanZoom from 'vue-svg-pan-zoom';
+import SvgPanZoom from 'vue-svg-pan-zoom';
 import Node from './Node.vue';
 import Link from './Link.vue';
 import { v4 as uuidv4 } from 'uuid';
@@ -65,8 +69,7 @@ export default {
                 }
             ],
             links: [],
-            bgColor: 'white',
-            panEnabled: true,
+            bgColor: 'grey',
             startDrag: false,
             startLink: false,
             selectedNode: undefined,
@@ -75,7 +78,7 @@ export default {
             selectedLink: undefined,
             lastMouseX: 0,
             lastMouseY: 0,
-            zoom: 1,
+            svgPanZoom: null
         }
     },
     updated() {
@@ -88,14 +91,14 @@ export default {
         });
     },
     components: {
-        // SvgPanZoom,
+        SvgPanZoom,
         Node,
         'node-link': Link
     },
     methods: {
         onStartDrag(node, subnode, x, y) {
             console.log("onStartDrag");
-            this.panEnabled = false;
+            this.svgPanZoom.disablePan();
             
             if (!this.startDrag && this.selectedNode) {
                 this.selectedNode.unselect();
@@ -109,18 +112,18 @@ export default {
             if (subnode) {
                 this.selectedSubNode = subnode;
             }
-            console.log(`${x}, ${y} ${this.panEnabled}`);
+            console.log(`${x}, ${y} ${this.svgPanZoom.panEnabled}`);
             this.startDrag = true;
         },
         onEndDrag() {
             console.log("onEndDrag");
-            this.panEnabled = true;
+            this.svgPanZoom.enablePan();
             this.startDrag = false;
             this.draggedItem = undefined;
         },
         onStartLink(node, subnode, port) {
             console.log(port);
-            this.panEnabled = false;
+            this.svgPanZoom.disablePan();
             this.startLink = true;
             console.log("subnode.pos: " + subnode.pos.x + ", " + subnode.pos.y);
             this.selectedLink = {
@@ -145,16 +148,6 @@ export default {
                 this.startLink = false;
             }
         },
-        beforePan() {
-            if (this.panEnabled) {
-                if (this.selectedNode) {
-                    this.selectedNode.unselect();
-                    this.selectedNode = undefined;
-                }
-                this.selectedSubNode = undefined;
-            }
-            return this.panEnabled;
-        },
         mouseDown(pos) {
             console.log(`Mouse Down on ${pos.x}, ${pos.y}`);
             if (!this.startDrag && this.selectedNode) {
@@ -166,8 +159,8 @@ export default {
         mouseMove(pos) {
             if (this.startDrag && this.draggedItem) {
 
-                let x = (pos.x - this.lastMouseX) / this.zoom;
-                let y = (pos.y - this.lastMouseY) / this.zoom;
+                let x = (pos.x - this.lastMouseX) / this.svgPanZoom.getZoom();
+                let y = (pos.y - this.lastMouseY) / this.svgPanZoom.getZoom();
                 this.draggedItem.move(x, y);
 
                 for (let i = 0; i < this.links.length; ++i) {
@@ -190,8 +183,8 @@ export default {
 
             } else if (this.startLink && this.selectedLink) {
                 if (this.selectedLink.component) {
-                    let x = (pos.x - this.lastMouseX) / this.zoom;
-                    let y = (pos.y - this.lastMouseY) / this.zoom;
+                    let x = (pos.x - this.lastMouseX) / this.svgPanZoom.getZoom();
+                    let y = (pos.y - this.lastMouseY) / this.svgPanZoom.getZoom();
                     this.selectedLink.component.moveEnd(x, y);
                 } else {
                     this.startLink = false;
@@ -208,13 +201,9 @@ export default {
             }
 
             this.draggedItem = undefined;
-            this.panEnabled = true;
+            this.svgPanZoom.enablePan();
             this.startDrag = false;
             this.startLink = false;
-        },
-        onZoom(zoom) {
-            console.log(zoom);
-            this.zoom = zoom;
         },
         addNode(x, y, subs) {
             var newNode = {
@@ -234,6 +223,10 @@ export default {
             while (this.links.length > 0) {
                 this.links.pop();
             }
+        },
+        registerSvgPanZoom(svgpanzoom) {
+            console.log("Register Svg Pan Zoom");
+            this.svgPanZoom = svgpanzoom;
         }
     }
 }

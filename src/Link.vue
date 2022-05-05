@@ -1,9 +1,7 @@
 <template>
-    <svg>
-        <path
-            style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-            :d="d" />
-    </svg>
+    <path
+        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+        :d="d" />
 </template>
 <script>
 export default {
@@ -16,7 +14,7 @@ export default {
             end: {
                 x: 0,
                 y: 0
-            }
+            },
         };
     },
     props: {
@@ -63,7 +61,7 @@ export default {
             let intersection2X = intersection1X;
             let intersection2Y = this.end.y;
             return `M ${this.start.x},${this.start.y} L ${intersection1X},${intersection1Y} ${intersection2X},${intersection2Y} ${this.end.x},${this.end.y}`;
-        }
+        },
     },
     methods: {
         setStart(x, y) {
@@ -84,7 +82,7 @@ export default {
         moveEnd(x, y) {
             this.end.x += x;
             this.end.y += y;
-        }
+        },
     }
 }
 </script>

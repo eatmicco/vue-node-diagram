@@ -92,7 +92,6 @@ export default {
         },
 
         move(x, y) {
-            console.log("node move " + this.pos.x + ", " + this.pos.y);
             this.pos.x += x;
             this.pos.y += y;
         },
