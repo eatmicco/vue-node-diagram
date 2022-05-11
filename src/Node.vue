@@ -51,7 +51,7 @@ export default {
 
         this.clearSubNodes();
         for (let i = 0; i < this.subs.length; ++i) {
-            this.addSubNode(this.subs[i], this.pos.x, this.pos.y);
+            this.addSubNode(this.subs[i]);
         }
         console.log(this.pos);
     },
@@ -96,11 +96,11 @@ export default {
             this.pos.y += y;
         },
 
-        addSubNode(text, parentX, parentY) {
+        addSubNode(text) {
             var subnode = {
                 id: `${uuidv4()}`,
-                x: parentX,
-                y: parentY + (this.subnodes.length * this.yspan),
+                x: this.pos.x,
+                y: this.pos.y + (this.subnodes.length * this.yspan),
                 width: 100,
                 height: 20,
                 text: text

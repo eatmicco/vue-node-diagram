@@ -216,6 +216,12 @@ export default {
             console.log('nodes: ' + this.nodes.length);
             this.nodes.push(newNode);
         },
+        addSubNode(index, subnode) {
+            if (this.nodes[index].component === undefined) {
+                this.nodes[index].component = this.$refs[this.nodes[index].id][0];
+            }
+            this.nodes[index].component.addSubNode(subnode);
+        },
         clearNodes() {
             while (this.nodes.length > 0) {
                 this.nodes.pop();
