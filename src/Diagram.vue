@@ -216,7 +216,16 @@ export default {
             console.log('nodes: ' + this.nodes.length);
             this.nodes.push(newNode);
         },
-        addSubNode(index, subnode) {
+        addSubNode(relsubnode, subnode) {
+            var index = 0;
+            this.nodes.forEach(n => {
+                if (n.subs.includes(relsubnode)) {
+                    this.addSubNodeByIndex(index, subnode);
+                }
+                index++;
+            })
+        },
+        addSubNodeByIndex(index, subnode) {
             if (this.nodes[index].component === undefined) {
                 this.nodes[index].component = this.$refs[this.nodes[index].id][0];
             }

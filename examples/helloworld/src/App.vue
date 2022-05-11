@@ -20,7 +20,7 @@ export default {
   mounted() {
     console.log("App mounted!");
     
-    this.$refs.diagram.addSubNode(0, "test X");
+    this.$refs.diagram.addSubNode("test D", "test X");
   }
 }
 </script>
