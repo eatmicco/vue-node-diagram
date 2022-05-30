@@ -96,11 +96,10 @@ export default {
         'node-link': Link
     },
     methods: {
-        onStartDrag(node, subnode, x, y) {
-            console.log("onStartDrag");
+        onStartDrag(node, subnode) {
             this.svgPanZoom.disablePan();
             
-            if (!this.startDrag && this.selectedNode) {
+            if (!this.startDrag && this.selectedNode != undefined && this.selectedNode != node) {
                 this.selectedNode.unselect();
                 this.selectedNode = undefined;
                 this.selectedSubNode = undefined;
@@ -112,20 +111,16 @@ export default {
             if (subnode) {
                 this.selectedSubNode = subnode;
             }
-            console.log(`${x}, ${y} ${this.svgPanZoom.panEnabled}`);
             this.startDrag = true;
         },
         onEndDrag() {
-            console.log("onEndDrag");
             this.svgPanZoom.enablePan();
             this.startDrag = false;
             this.draggedItem = undefined;
         },
         onStartLink(node, subnode, port) {
-            console.log(port);
             this.svgPanZoom.disablePan();
             this.startLink = true;
-            console.log("subnode.pos: " + subnode.pos.x + ", " + subnode.pos.y);
             this.selectedLink = {
                 id: `${uuidv4()}`,
                 startX: node.pos.x + subnode.pos.x + port.pos.x,
@@ -141,15 +136,13 @@ export default {
             if (this.startLink && this.selectedLink) {
                 this.selectedLink.nodeInput = node;
                 this.selectedLink.subNodeInput = subnode;
-                console.log(`Before ${this.selectedLink.endX}`);
                 if (this.selectedLink.component) {
                     this.selectedLink.component.setEnd(node.pos.x + subnode.pos.x + port.pos.x, node.pos.y + subnode.pos.y + port.pos.y);
                 }
                 this.startLink = false;
             }
         },
-        mouseDown(pos) {
-            console.log(`Mouse Down on ${pos.x}, ${pos.y}`);
+        mouseDown() {
             if (!this.startDrag && this.selectedNode) {
                 this.selectedNode.unselect();
                 this.selectedNode = undefined;
@@ -213,7 +206,6 @@ export default {
                 subs: subs,
                 component: undefined
             };
-            console.log('nodes: ' + this.nodes.length);
             this.nodes.push(newNode);
         },
         addSubNode(relsubnode, subnode) {

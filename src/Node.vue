@@ -36,7 +36,8 @@ export default {
             },
             subnodes: [],
             yspan: 20,
-            selected: false
+            selected: false,
+            selectedSubNode: undefined,
         };
     },
     updated() {
@@ -45,7 +46,6 @@ export default {
         });
     },
     mounted() {
-        console.log("Node mounted");
         this.pos.x = this.x;
         this.pos.y = this.y;
 
@@ -53,22 +53,26 @@ export default {
         for (let i = 0; i < this.subs.length; ++i) {
             this.addSubNode(this.subs[i]);
         }
-        console.log(this.pos);
     },
     methods: {
-        onMouseDown(subnode, pos) {
+        onMouseDown(subnode) {
+            if (this.selectedSubNode != undefined && 
+                this.selectedSubNode.text.localeCompare(subnode.text) != 0 &&
+                this.selectedSubNode.component != undefined) {
+                this.selectedSubNode.component.unselect();
+            }
+
+            this.selectedSubNode = this.getSubNode(subnode.text);
+            
             this.selected = true;
             this.$emit(
                 "onStartDrag",
                 this,
-                subnode,
-                pos.x - this.pos.x,
-                pos.y - this.pos.y
+                subnode
             )
         },
 
         onMouseUp() {
-            console.log("Node mouseDown");
             this.$emit("onEndDrag");
         },
 
@@ -82,12 +86,10 @@ export default {
         },
 
         onStartLink(subnode, port) {
-            console.log("Node onStartLink");
             this.$emit("onStartLink", this, subnode, port);
         },
 
         onEndLink(subnode, port) {
-            console.log("Node onEndLink");
             this.$emit("onEndLink", this, subnode, port);
         },
 
@@ -106,13 +108,21 @@ export default {
                 text: text
             };
 
-            console.log("addsubnode: " + subnode.text + "; y:" + subnode.y);
             this.subnodes.push(subnode);
         },
 
         clearSubNodes() {
             while (this.subnodes.length > 0) {
                 this.subnodes.pop();
+            }
+        },
+
+        getSubNode(text) {
+            for (var i = 0; i < this.subnodes.length; i++) {
+                var s = this.subnodes[i];
+                if (s.text.localeCompare(text) == 0) {
+                    return s;
+                }
             }
         }
     },

@@ -66,10 +66,8 @@ export default {
         };
     },
     mounted() {
-        console.log("SubNode mounted");
         this.pos.x = this.x;
         this.pos.y = this.y;
-        console.log(this.pos);
     },
     computed: {
         portY() {
@@ -86,9 +84,9 @@ export default {
         }
     },
     methods: {
-        mouseDown(_pos) {
+        mouseDown() {
             this.selected = true;
-            this.$emit("onMouseDown", this, _pos);
+            this.$emit("onMouseDown", this);
         },
 
         mouseUp() {
@@ -100,17 +98,14 @@ export default {
         },
 
         onStartLink(port) {
-            console.log("SubNode onStartLink " + this.pos.x + ", " + this.pos.y);
             this.$emit("onStartLink", this, port);
         },
 
         onEndLink(port) {
-            console.log("SubNode onEndLink");
             this.$emit("onEndLink", this, port);
         },
 
         move(x, y) {
-            console.log("subnode move: " + this.pos.x + ", " + this.pos.y);
             this.pos.x += x;
             this.pos.y += y;
         }
