@@ -62,13 +62,15 @@ export default {
                 this.selectedSubNode.component.unselect();
             }
 
-            this.selectedSubNode = this.getSubNode(subnode.text);
+            var [s, i] = this.getSubNode(subnode.text);
+            this.selectedSubNode = s;
             
             this.selected = true;
             this.$emit(
                 "onStartDrag",
                 this,
-                subnode
+                subnode,
+                i
             )
         },
 
@@ -121,7 +123,7 @@ export default {
             for (var i = 0; i < this.subnodes.length; i++) {
                 var s = this.subnodes[i];
                 if (s.text.localeCompare(text) == 0) {
-                    return s;
+                    return [s, i];
                 }
             }
         }

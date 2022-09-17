@@ -96,7 +96,7 @@ export default {
         'node-link': Link
     },
     methods: {
-        onStartDrag(node, subnode) {
+        onStartDrag(node, subnode, index) {
             this.svgPanZoom.disablePan();
             
             if (!this.startDrag && this.selectedNode != undefined && this.selectedNode != node) {
@@ -111,6 +111,7 @@ export default {
             if (subnode) {
                 this.selectedSubNode = subnode;
             }
+            this.$emit("onSelected", this.selectedNode, this.selectedSubNode, index);
             this.startDrag = true;
         },
         onEndDrag() {
