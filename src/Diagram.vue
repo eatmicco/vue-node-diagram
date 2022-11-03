@@ -235,6 +235,10 @@ export default {
         registerSvgPanZoom(svgpanzoom) {
             console.log("Register Svg Pan Zoom");
             this.svgPanZoom = svgpanzoom;
+        },
+        connectSubNodes(outNode, outSubNode, outPort, inNode, inSubNode, inPort) {
+            this.onStartLink(outNode, outSubNode, outPort);
+            this.onEndLink(inNode, inSubNode, inPort);
         }
     }
 }
